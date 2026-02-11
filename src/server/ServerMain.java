@@ -1,25 +1,23 @@
 package server;
 
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
 public class ServerMain {
-    public static void main(String[] args) {
-        try {
-            ServerSocket serverSocket = new ServerSocket(5050);
-            System.out.println("Server đang chạy...");
 
-            while (true) {
-                Socket p1 = serverSocket.accept();
-                System.out.println("Player 1 vào phòng");
+    public static void main(String[] args) throws IOException {
 
-                Socket p2 = serverSocket.accept();
-                System.out.println("Player 2 vào phòng");
+        ServerSocket serverSocket = new ServerSocket(5050);
+        System.out.println("Server đang chạy...");
 
-                new Room(p1, p2).start();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        Room room = new Room();
+
+        while (true) {
+            Socket socket = serverSocket.accept();
+            PlayerHandler player = new PlayerHandler(socket, room);
+            room.addPlayer(player);
+            new Thread(player).start();
         }
     }
 }

@@ -1,31 +1,45 @@
 package client;
 
-import common.*;
-
 import java.io.*;
 import java.net.Socket;
+import java.util.Scanner;
+
+import common.Choice;
 
 public class ClientService {
 
-    public void play(Choice choice) {
+    public void start() {
+
         try {
             Socket socket = new Socket("localhost", 5050);
 
-            ObjectOutputStream out =
-                    new ObjectOutputStream(socket.getOutputStream());
-            ObjectInputStream in =
-                    new ObjectInputStream(socket.getInputStream());
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(socket.getInputStream()));
 
-            out.writeObject(new Message(choice));
+            PrintWriter out = new PrintWriter(
+                    socket.getOutputStream(), true);
 
-            Message result = (Message) in.readObject();
-            System.out.println(result.getInfo());
-            System.out.println("KẾT QUẢ: " + result.getResult());
+            Scanner sc = new Scanner(System.in);
 
-            socket.close();
+            new Thread(() -> {
+                try {
+                    String msg;
+                    while ((msg = in.readLine()) != null) {
+                        System.out.println(msg);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }).start();
+
+            while (true) {
+                String input = sc.nextLine();
+                out.println(input);
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
 }
